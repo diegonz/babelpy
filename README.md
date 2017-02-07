@@ -1,4 +1,4 @@
-# babelPY
+# babelPy
 
 A command line tool to translate text from the clipboard or selected text.
 
@@ -33,6 +33,8 @@ Example of a simple config file (default `~/.babelPy.json`) containing _all_ the
 You can simply run `babelPy` to run translation, picking preferences from default config file (`~/.babelPy.json`).
 
 Example of `babelPY -h` or `babelPy --help`  output:
+
+Note: All of each _cli_ options overrides their corresponding config settings stored on the config file(s).
 
 ```bash
 usage: babelPy.py [-h] [-a [YourApiKey]] [-b [yandex|other]]
