@@ -1,8 +1,8 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class TranslateException(ABC, Exception):
-    """TranslateException: Abstract class representing translate exception"""
+    """TranslateException: Abstract class representing translate exceptions"""
     error_codes = {
         401: "ERR_KEY_INVALID",
         402: "ERR_KEY_BLOCKED",
@@ -17,7 +17,11 @@ class TranslateException(ABC, Exception):
         505: "ERR_LANGUAGE_NOT_AVAILABLE",
     }
 
-    def __init__(self, status_code, *args, **kwargs):
-        message = self.error_codes.get(status_code)
-        super(TranslateException, self).__init__(message, *args,
-                                                 **kwargs)
+    msg = "NO_ERROR"
+
+    def __init__(self, status_code):
+        self.msg = self.error_codes.get(status_code)
+
+    @abstractmethod
+    def __str__(self):
+        return self.msg

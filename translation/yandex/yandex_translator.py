@@ -19,10 +19,10 @@ class YandexTranslatorException(TranslateException):
         503: "ERR_SERVICE_NOT_AVAILABLE",
     }
 
-    def __init__(self, status_code, *args, **kwargs):
-        message = self.error_codes.get(status_code)
-        super(YandexTranslatorException, self).__init__(message, *args,
-                                                        **kwargs)
+    def __init__(self, status_code):
+        self.msg = self.error_codes.get(status_code)
+
+    def __str__(self): return self.msg
 
 
 class YandexTranslator(object):

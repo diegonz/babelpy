@@ -10,7 +10,7 @@ Example of a simple config file (default `~/.babelPy.json`) containing _all_ the
 {
   "babelPY": "Config settings file for babelPy",
   "default_backend": "backend",
-  "available_backend": {
+  "backend": {
     "yandex": {
       "api_key": "YourYandexApiKey"
     },

@@ -5,7 +5,7 @@ from translation.yandex.yandex_translator import YandexTranslator
 
 class YandexHelperException(TranslateException):
     """
-    Default YandexTranslateHelper exception
+    Default YandexHelper exception
     """
     error_codes = {
         405: "ERR_TRANSLATION_NOT_AVAILABLE",
@@ -13,17 +13,17 @@ class YandexHelperException(TranslateException):
         505: "ERR_LANGUAGE_NOT_AVAILABLE",
     }
 
-    def __init__(self, status_code, *args, **kwargs):
-        message = self.error_codes.get(status_code)
-        super(YandexHelperException, self).__init__(message, *args,
-                                                    **kwargs)
+    def __init__(self, status_code, lang_info):
+        self.msg = self.error_codes.get(status_code) + " -> " + lang_info
+
+    def __str__(self): return self.msg
 
 
-class YandexTranslateHelper(TranslateBackendHelper):
-    """YandexTranslateHelper - Handles Yandex Translation API requests"""
+class YandexHelper(TranslateBackendHelper):
+    """YandexHelper - Handles Yandex Translation API requests"""
 
     def __init__(self, api_key):
-        """Constructor for YandexTranslateHelper - Setup object with API key"""
+        """Constructor for YandexHelper - Setup object with API key"""
         self.yandex_translate = YandexTranslator(api_key)
         self.available_languages = ['no', 'sv', 'sr', 'ro', 'mk', 'fi', 'ru',
                                     'cs', 'hu', 'hr', 'sl', 'sq', 'be', 'es',
@@ -76,17 +76,15 @@ class YandexTranslateHelper(TranslateBackendHelper):
         return self.yandex_translate.detect(clipboard_content)
 
     def _translation_available(self, source_lang, target_lang):
+        translate_direction = source_lang + "-" + target_lang
         if source_lang == target_lang:
-            # return False
-            raise YandexHelperException(406)
+            raise YandexHelperException(406, translate_direction)
         if target_lang not in self.available_languages:
             print("[Error] Language not available!.")
-            # return False
-            raise YandexHelperException(505)
+            raise YandexHelperException(505, target_lang)
         if source_lang + "-" + target_lang not in self.available_translations:
             print("[Error] Translation not available!.")
-            # return False
-            raise YandexHelperException(405)
+            raise YandexHelperException(405, translate_direction)
         return True
 
     def _translate(self, clipboard_content, translate_direction):

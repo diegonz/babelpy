@@ -1,4 +1,5 @@
 import json
+import os
 
 
 class ConfigSettings:
@@ -88,5 +89,7 @@ class ConfigSettings:
                 return 0  # Status code to return to sys.exit()
         except (OSError, IOError) as exception:
             print("[Error] There was an IO error while writing config file!")
-            print("[Error] -> " + exception)
+            print("[Error] -> " + exception.errno)
+            print("[Error code] -> " + exception.errorcode[exception.errno])
+            print("[Error message] -> " + os.strerror(exception.errno))
             return 1  # Status code to return to sys.exit()
