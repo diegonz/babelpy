@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# TODO Make test for helpers and utils
+
 import argparse
 import os
 import platform
@@ -42,9 +45,6 @@ settings = ConfigSettings(CONFIG_FILE_PATH)
 if args.save_config:
     return_code = settings.save(args)
     sys.exit(return_code)
-
-SOURCE_LANG = args.source_lang if args.source_lang else "auto"
-TARGET_LANG = args.target_lang if args.target_lang else settings.language
 
 INPUT_TYPE = args.input if args.input else settings.input
 if not args.message:
@@ -90,8 +90,8 @@ if TARGET_BACKEND == "yandex":
 
 API_KEY = args.api_key if args.api_key else settings.api_key
 translator = TranslateHelper(API_KEY)
-
-# Do the real thing
+SOURCE_LANG = args.source_lang if args.source_lang else "auto"
+TARGET_LANG = args.target_lang if args.target_lang else settings.language
 
 try:
     from requests.packages.urllib3.exceptions import NewConnectionError
