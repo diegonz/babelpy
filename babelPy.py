@@ -2,6 +2,7 @@
 import argparse
 import os
 import platform
+import socket
 import sys
 
 from babelpy_utils.ConfigSettings import ConfigSettings
@@ -49,7 +50,7 @@ INPUT_TYPE = args.input if args.input else settings.input
 if not args.message:
     try:
         # noinspection PyUnresolvedReferences
-        from babelpy_utils.clipboard import push_clipboard, pull_input
+        from babelpy_utils.clipboard import pull_input
 
         source_text = pull_input(INPUT_TYPE)
     except ImportError as exception:
@@ -83,21 +84,30 @@ elif OUTPUT_TYPE == "dialog":
 
 TARGET_BACKEND = args.backend if args.backend else settings.backend
 if TARGET_BACKEND == "yandex":
-    from translation.yandex.yandex_helper import YandexHelper as TranslateHelper
+    from translation.yandex.yandex_helper import YandexHelperException, \
+        YandexHelper as TranslateHelper
+    from translation.yandex.yandex_translator import YandexTranslatorException
 
 API_KEY = args.api_key if args.api_key else settings.api_key
 translator = TranslateHelper(API_KEY)
 
+# Do the real thing
+
 try:
-    from translation import TranslateException
+    from requests.packages.urllib3.exceptions import NewConnectionError
+
     if args.source_lang:
         translation = translator.translate_manual(source_text, SOURCE_LANG,
                                                   TARGET_LANG)
     else:
         translation = translator.translate_auto(source_text, TARGET_LANG)
-except TranslateException as translate_exception:
+except (ConnectionError, socket.error) as network_exception:
+    print("[Error] An connection error occurred while accessing the network.")
+    print("[Error] -> {0}".format(network_exception))
+    sys.exit(1)
+except (YandexHelperException, YandexTranslatorException) as translate_error:
     print("[Error] An error occurred while requesting translation!")
-    print("[Error] -> " + translate_exception)
+    print("[Error] -> " + translate_error)
     sys.exit(1)
 
 APP_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -122,6 +132,9 @@ elif OUTPUT_TYPE == "stdout":
 
 if args.exchange or settings.exchange:
     try:
+        # noinspection PyUnresolvedReferences
+        from babelpy_utils.clipboard import push_clipboard
+
         push_clipboard(translation)
     except ImportError as exception:
         print("[Error] Python pyperclip module not found!")

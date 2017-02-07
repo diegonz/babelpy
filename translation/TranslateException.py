@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABC
 
 
-class TranslateException(ABC, Exception):
+class TranslateException(BaseException, ABC):
     """TranslateException: Abstract class representing translate exceptions"""
     error_codes = {
         401: "ERR_KEY_INVALID",
