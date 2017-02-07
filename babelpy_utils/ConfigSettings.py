@@ -15,9 +15,12 @@ class ConfigSettings:
                 self.input = loaded_data['default_input']
                 self.output = loaded_data['default_output']
                 self.exchange = loaded_data['default_exchange']
-                self.yandex_api_key = loaded_data['yandex_api_key']
-                self.microsoft_api_key = loaded_data['microsoft_api_key']
-                self.google_api_key = loaded_data['google_api_key']
+                self.yandex_api_key = loaded_data['backend']['yandex'][
+                    'api_key']
+                self.microsoft_api_key = loaded_data['backend']['microsoft'][
+                    'api_key']
+                self.google_api_key = loaded_data['backend']['google'][
+                    'api_key']
                 self.api_key = loaded_data['backend'][self.backend]['api_key']
         except FileNotFoundError:
             print("[Warning] No config file found, creating empty settings...")
@@ -35,6 +38,8 @@ class ConfigSettings:
 
     def save(self, parsed_args):
         """save - Saves config settings to given file"""
+        print(parsed_args)
+        print(self.api_key)
         if parsed_args.backend == "yandex":
             self.backend = parsed_args.backend
             if parsed_args.api_key:
@@ -47,6 +52,14 @@ class ConfigSettings:
             self.backend = parsed_args.backend
             if parsed_args.api_key:
                 self.google_api_key = parsed_args.api_key
+
+        if self.api_key:
+            if self.backend == "yandex":
+                self.yandex_api_key = self.api_key
+            elif self.backend == "microsoft":
+                self.microsoft_api_key = self.api_key
+            elif self.backend == "google":
+                self.google_api_key = self.api_key
 
         if parsed_args.source_lang:
             self.language = parsed_args.source_lang

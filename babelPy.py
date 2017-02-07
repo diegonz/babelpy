@@ -40,7 +40,7 @@ CONFIG_FILE_PATH = args.config_file if args.config_file else default_cfg_path
 settings = ConfigSettings(CONFIG_FILE_PATH)
 if args.save_config:
     return_code = settings.save(args)
-    sys.exit(status=return_code)
+    sys.exit(return_code)
 
 SOURCE_LANG = args.source_lang if args.source_lang else "auto"
 TARGET_LANG = args.target_lang if args.target_lang else settings.language
@@ -56,7 +56,7 @@ if not args.message:
         source_text = "[Error] Python module pyperclip not found!"
         print("[Error] Python module pyperclip not found!")
         print("[Error] -> {0}".format(exception))
-        sys.exit(status=1)
+        sys.exit(1)
 else:
     source_text = args.message
 
@@ -73,7 +73,7 @@ if OUTPUT_TYPE == "notify":
 
 
         print("[Error] Python GTK+ Notify module not found!")
-        sys.exit(status=1)
+        sys.exit(1)
 elif OUTPUT_TYPE == "dialog":
     try:
         from babelpy_utils.dialog import show_dialog
@@ -83,26 +83,25 @@ elif OUTPUT_TYPE == "dialog":
 
 
         print("[Error] Python tkinter module not found!")
-        sys.exit(status=1)
+        sys.exit(1)
 
 TARGET_BACKEND = args.backend if args.backend else settings.backend
 if TARGET_BACKEND == "yandex":
-    from translation.yandex.yandex_helper import YandexHelperException, \
-        YandexTranslateHelper as TranslateHelper
-    from translation.yandex.yandex_translator import YandexTranslatorException
+    from translation.yandex.yandex_helper import YandexTranslateHelper as TranslateHelper
 
 API_KEY = args.api_key if args.api_key else settings.api_key
 translator = TranslateHelper(API_KEY)
 
 try:
+    from translation import TranslateException
     if args.source_lang:
         translation = translator.translate_manual(source_text, SOURCE_LANG,
                                                   TARGET_LANG)
     else:
         translation = translator.translate_auto(source_text, TARGET_LANG)
-except (YandexTranslatorException, YandexHelperException) as exception:
+except TranslateException as exception:
     print("[Error] An error occurred while requesting translation!")
-    print("[Error] -> {0}".format(exception))
+    print("[Error] -> {0}".format(str(exception)))
     sys.exit(1)
 
 APP_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -114,14 +113,14 @@ if OUTPUT_TYPE == "notify":
     except ImportError as exception:
         print("[Error] Python GTK+ module Notify not found!")
         print("[Error] -> {0}".format(exception))
-        sys.exit(status=1)
+        sys.exit(1)
 elif OUTPUT_TYPE == "dialog":
     try:
         show_dialog(APP_ID, source_text, translation, TARGET_LANG)
     except ImportError as exception:
         print("[Error] Python module(s) tkinter or pyperclip not found!")
         print("[Error] -> {0}".format(exception))
-        sys.exit(status=1)
+        sys.exit(1)
 elif OUTPUT_TYPE == "stdout":
     print("Translated to: " + TARGET_LANG + "\n" + translation)
 
@@ -131,4 +130,4 @@ if args.exchange or settings.exchange:
     except ImportError as exception:
         print("[Error] Python pyperclip module not found!")
         print("[Error] -> {0}".format(exception))
-        sys.exit(status=1)
+        sys.exit(1)
