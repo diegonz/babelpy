@@ -8,7 +8,7 @@ import platform
 import socket
 import sys
 
-from babelpy_utils.ConfigSettings import ConfigSettings
+from babelpy_utils.settings import ConfigSettings
 
 APP_ID = "babelPy"
 APP_DESC = "An easy tool for those who would not survive in the tower of Babel"
@@ -39,7 +39,7 @@ arg_parser.add_argument('--save-config', action='store_true',
                              ', based on default or stored/saved settings.')
 args = arg_parser.parse_args()
 
-default_cfg_path = os.path.expanduser("~/.babelPy.json")
+default_cfg_path = os.path.expanduser("~") + "/.babelPy.json"
 CONFIG_FILE_PATH = args.config_file if args.config_file else default_cfg_path
 settings = ConfigSettings(CONFIG_FILE_PATH)
 if args.save_config:
@@ -49,7 +49,6 @@ if args.save_config:
 INPUT_TYPE = args.input if args.input else settings.input
 if not args.message:
     try:
-        # noinspection PyUnresolvedReferences
         from babelpy_utils.clipboard import pull_input
 
         source_text = pull_input(INPUT_TYPE)
@@ -61,32 +60,10 @@ if not args.message:
 else:
     source_text = args.message
 
-OUTPUT_TYPE = args.output if args.output else settings.output
-if platform.system() != "Linux" and OUTPUT_TYPE != "stdout":
-    print("[Error] Notification and dialogs are supported only on Linux.")
-    sys.exit(1)
-if OUTPUT_TYPE == "notify":
-    try:
-        # noinspection PyUnresolvedReferences
-        from babelpy_utils.notify import send_notification
-    except ImportError as exception:
-        print("[Error] Python GTK+ Notify module not found!")
-        print("[Error] -> {0}") + exception.msg
-        sys.exit(1)
-elif OUTPUT_TYPE == "dialog":
-    try:
-        # noinspection PyUnresolvedReferences
-        from babelpy_utils.dialog import show_dialog
-    except ImportError as exception:
-        print("[Error] Python tkinter module not found!")
-        print("[Error] -> {0}") + exception.msg
-        sys.exit(1)
-
 TARGET_BACKEND = args.backend if args.backend else settings.backend
 if TARGET_BACKEND == "yandex":
-    from translation.yandex.yandex_helper import YandexHelperException, \
-        YandexHelper as TranslateHelper
-    from translation.yandex.yandex_translator import YandexTranslatorException
+    from translation.yandex import YandexHelper as TranslateHelper, \
+        YandexHelperException, YandexTranslatorException
 
 API_KEY = args.api_key if args.api_key else settings.api_key
 translator = TranslateHelper(API_KEY)
@@ -107,22 +84,34 @@ except (ConnectionError, socket.error) as network_exception:
     sys.exit(1)
 except (YandexHelperException, YandexTranslatorException) as translate_error:
     print("[Error] An error occurred while requesting translation!")
-    print("[Error] -> " + translate_error)
+    print("[Error] -> " + translate_error.msg)
     sys.exit(1)
 
 APP_PATH = os.path.dirname(os.path.realpath(__file__))
 APP_ICON_PATH = APP_PATH + "/resources/icons/transClipper-outline-64.png"
 
+OUTPUT_TYPE = args.output if args.output else settings.output
+system_type = platform.system()
+if system_type != "Linux" and OUTPUT_TYPE != "stdout":
+    print("[Error] Notification and dialogs are supported only on Linux.")
+    sys.exit(1)
+
 if OUTPUT_TYPE == "notify":
+    # TODO Check OS -> checked before
     try:
-        send_notification(APP_ID, APP_ICON_PATH, translation, TARGET_LANG)
+        from babelpy_utils.notify import LinuxNotifier, show_dialog
+
+        notifier = LinuxNotifier(APP_ID, APP_ICON_PATH)
+        notifier.notify(translation, "FakeTitle", TARGET_LANG)
     except ImportError as exception:
-        print("[Error] Python GTK+ module Notify not found!")
+        print("[Error] Python module(s) GTK+ or pyperclip Notify not found!")
         print("[Error] -> {0}") + exception.msg
         sys.exit(1)
 elif OUTPUT_TYPE == "dialog":
     try:
-        show_dialog(APP_ID, source_text, translation, TARGET_LANG)
+        from babelpy_utils.notify import TkDialogNotifier as tkdialog
+
+        tkdialog.show_dialog(APP_ID, source_text, translation, TARGET_LANG)
     except ImportError as exception:
         print("[Error] Python module(s) tkinter or pyperclip not found!")
         print("[Error] -> {0}") + exception.msg
@@ -132,7 +121,6 @@ elif OUTPUT_TYPE == "stdout":
 
 if args.exchange or settings.exchange:
     try:
-        # noinspection PyUnresolvedReferences
         from babelpy_utils.clipboard import push_clipboard
 
         push_clipboard(translation)
