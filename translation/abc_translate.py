@@ -27,8 +27,8 @@ class TranslateException(BaseException, ABC):
         return self.msg
 
 
-class TranslateBackendHelper(ABC):
-    """TranslateBackendHelper: Abstract class representing translate backend"""
+class TranslateHelper(ABC):
+    """TranslateHelper: Abstract class representing translate backend"""
 
     @abstractmethod
     def _translation_available(self, source_lang, target_lang):

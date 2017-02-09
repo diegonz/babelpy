@@ -49,6 +49,7 @@ if args.save_config:
 INPUT_TYPE = args.input if args.input else settings.input
 if not args.message:
     try:
+        # noinspection PyUnresolvedReferences
         from babelpy_utils.clipboard import pull_input
 
         source_text = pull_input(INPUT_TYPE)
@@ -61,7 +62,7 @@ else:
     source_text = args.message
 
 TARGET_BACKEND = args.backend if args.backend else settings.backend
-if TARGET_BACKEND == "yandex":
+if TARGET_BACKEND is "yandex":
     from translation.yandex import YandexHelper as TranslateHelper, \
         YandexHelperException, YandexTranslatorException
 
@@ -92,35 +93,36 @@ APP_ICON_PATH = APP_PATH + "/resources/icons/transClipper-outline-64.png"
 
 OUTPUT_TYPE = args.output if args.output else settings.output
 system_type = platform.system()
-if system_type != "Linux" and OUTPUT_TYPE != "stdout":
-    print("[Error] Notification and dialogs are supported only on Linux.")
+if system_type is "Darwin" and OUTPUT_TYPE != "stdout":
+    print("[Error] Notification and dialogs only supported on Win & Linux.")
     sys.exit(1)
 
-if OUTPUT_TYPE == "notify":
+if OUTPUT_TYPE is "notify":
     # TODO Check OS -> checked before
     try:
-        from babelpy_utils.notify import LinuxNotifier, show_dialog
+        from notification.notify import NotifyHelper
 
-        notifier = LinuxNotifier(APP_ID, APP_ICON_PATH)
+        notifier = NotifyHelper(system_type, APP_ID, APP_ICON_PATH)
         notifier.notify(translation, "FakeTitle", TARGET_LANG)
     except ImportError as exception:
-        print("[Error] Python module(s) GTK+ or pyperclip Notify not found!")
+        print("[Error] Module(s) Notify, pyperclip or windows not found!")
         print("[Error] -> {0}") + exception.msg
         sys.exit(1)
-elif OUTPUT_TYPE == "dialog":
+elif OUTPUT_TYPE is "dialog":
     try:
-        from babelpy_utils.notify import TkDialogNotifier as tkdialog
+        from notification.notify import TkDialogNotifier as TkDialog
 
-        tkdialog.show_dialog(APP_ID, source_text, translation, TARGET_LANG)
+        TkDialog.show_dialog(APP_ID, source_text, translation, TARGET_LANG)
     except ImportError as exception:
         print("[Error] Python module(s) tkinter or pyperclip not found!")
         print("[Error] -> {0}") + exception.msg
         sys.exit(1)
-elif OUTPUT_TYPE == "stdout":
-    print("Translated to: " + TARGET_LANG + "\n" + translation)
+elif OUTPUT_TYPE is "stdout":
+    print(translation)
 
 if args.exchange or settings.exchange:
     try:
+        # noinspection PyUnresolvedReferences
         from babelpy_utils.clipboard import push_clipboard
 
         push_clipboard(translation)

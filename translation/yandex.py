@@ -1,6 +1,6 @@
 import requests
 
-from translation.translate import TranslateException, TranslateBackendHelper
+from translation.abc_translate import TranslateException, TranslateHelper
 
 
 class YandexTranslatorException(TranslateException):
@@ -168,7 +168,7 @@ class YandexHelperException(TranslateException):
     def __str__(self): return self.msg
 
 
-class YandexHelper(TranslateBackendHelper):
+class YandexHelper(TranslateHelper):
     """YandexHelper - Handles Yandex Translation API requests"""
 
     def __init__(self, api_key):

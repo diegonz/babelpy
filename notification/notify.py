@@ -2,13 +2,6 @@ import time
 import tkinter
 from abc import ABC, abstractmethod
 
-import gi
-
-gi.require_version('Notify', '0.7')
-from gi.repository import Notify
-
-# TODO Check Code!!!
-
 
 class TranslateNotifier(ABC):
     """TranslateNotifier abstract class representing notifier functionality"""
@@ -22,21 +15,6 @@ class TranslateNotifier(ABC):
     @abstractmethod
     def notify(self, title, message, language):
         pass
-
-
-class LinuxNotifier(TranslateNotifier):
-    """LinuxNotifier class handles linux notifications"""
-
-    def __init__(self, app_id, icon_path):
-        """Constructor for LinuxNotifier"""
-        super().__init__(app_id, icon_path)
-        Notify.init(app_id)
-        self.icon_path = icon_path
-
-    def notify(self, message, title, language):
-        notify_title = "<b>Translated to: " + language + "</b>"
-        Notify.Notification.new(notify_title, message, self.icon_path).show()
-        Notify.uninit()
 
 
 class TkDialogNotifier(tkinter.Frame):
@@ -88,3 +66,21 @@ class TkDialogNotifier(tkinter.Frame):
         tk_dialog.set_source_text(src_message)
         tk_dialog.set_translated_text(translation)
         tk_dialog.mainloop()
+
+
+class NotifyHelper(TranslateNotifier):
+    """NotifyHelper class that helps handling notifications between systems"""
+
+    def __init__(self, system_type, app_id, icon_path):
+        """Constructor for NotifyHelper"""
+        super().__init__(app_id, icon_path)
+        self.system_type = system_type
+
+    def notify(self, message, title, language):
+        if self.system_type is "Linux":
+            from notification.LinuxNotifier import LinuxNotifier
+            notifier = LinuxNotifier(self.app_id, self.icon_path)
+        else:
+            from notification.WindowsNotifier import WindowsNotifier
+            notifier = WindowsNotifier(self.app_id, self.icon_path)
+        notifier.notify(message, title, language)
