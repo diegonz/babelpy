@@ -62,7 +62,7 @@ else:
     source_text = args.message
 
 TARGET_BACKEND = args.backend if args.backend else settings.backend
-if TARGET_BACKEND is "yandex":
+if TARGET_BACKEND == "yandex":
     from translation.yandex import YandexHelper as TranslateHelper, \
         YandexHelperException, YandexTranslatorException
 
@@ -93,11 +93,11 @@ APP_ICON_PATH = APP_PATH + "/resources/icons/transClipper-outline-64.png"
 
 OUTPUT_TYPE = args.output if args.output else settings.output
 system_type = platform.system()
-if system_type is "Darwin" and OUTPUT_TYPE != "stdout":
+if system_type == "Darwin" and OUTPUT_TYPE != "stdout":
     print("[Error] Notification and dialogs only supported on Win & Linux.")
     sys.exit(1)
 
-if OUTPUT_TYPE is "notify":
+if OUTPUT_TYPE == "notify":
     # TODO Check OS -> checked before
     try:
         from notification.notify import NotifyHelper
@@ -108,7 +108,7 @@ if OUTPUT_TYPE is "notify":
         print("[Error] Module(s) Notify, pyperclip or windows not found!")
         print("[Error] -> {0}") + exception.msg
         sys.exit(1)
-elif OUTPUT_TYPE is "dialog":
+elif OUTPUT_TYPE == "dialog":
     try:
         from notification.notify import TkDialogNotifier as TkDialog
 
@@ -117,7 +117,7 @@ elif OUTPUT_TYPE is "dialog":
         print("[Error] Python module(s) tkinter or pyperclip not found!")
         print("[Error] -> {0}") + exception.msg
         sys.exit(1)
-elif OUTPUT_TYPE is "stdout":
+elif OUTPUT_TYPE == "stdout":
     print(translation)
 
 if args.exchange or settings.exchange:

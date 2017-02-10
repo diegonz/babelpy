@@ -1,9 +1,9 @@
 import requests
 
-from translation.abc_translate import TranslateException, TranslateHelper
+from translation.abc_translate import TranslateExceptionABC, TranslateHelperABC
 
 
-class YandexTranslatorException(TranslateException):
+class YandexTranslatorException(TranslateExceptionABC):
     """
     Default YandexTranslator exception
     """
@@ -152,7 +152,7 @@ class YandexTranslator(object):
         return response
 
 
-class YandexHelperException(TranslateException):
+class YandexHelperException(TranslateExceptionABC):
     """
     Default YandexHelper exception
     """
@@ -168,7 +168,7 @@ class YandexHelperException(TranslateException):
     def __str__(self): return self.msg
 
 
-class YandexHelper(TranslateHelper):
+class YandexHelper(TranslateHelperABC):
     """YandexHelper - Handles Yandex Translation API requests"""
 
     def __init__(self, api_key):

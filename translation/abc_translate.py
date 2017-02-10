@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 
-class TranslateException(BaseException, ABC):
-    """TranslateException: Abstract class representing translate exceptions"""
+class TranslateExceptionABC(BaseException, ABC):
+    """TranslateExceptionABC: Abstract class representing translate exceptions"""
     error_codes = {
         401: "ERR_KEY_INVALID",
         402: "ERR_KEY_BLOCKED",
@@ -27,8 +27,8 @@ class TranslateException(BaseException, ABC):
         return self.msg
 
 
-class TranslateHelper(ABC):
-    """TranslateHelper: Abstract class representing translate backend"""
+class TranslateHelperABC(ABC):
+    """TranslateHelperABC: Abstract class representing translate backend"""
 
     @abstractmethod
     def _translation_available(self, source_lang, target_lang):

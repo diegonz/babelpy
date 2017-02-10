@@ -77,7 +77,7 @@ class NotifyHelper(TranslateNotifier):
         self.system_type = system_type
 
     def notify(self, message, title, language):
-        if self.system_type is "Linux":
+        if self.system_type == "Linux":
             from notification.LinuxNotifier import LinuxNotifier
             notifier = LinuxNotifier(self.app_id, self.icon_path)
         else:
