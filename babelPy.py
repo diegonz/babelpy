@@ -72,7 +72,7 @@ SOURCE_LANG = args.source_lang if args.source_lang else "auto"
 TARGET_LANG = args.target_lang if args.target_lang else settings.language
 
 try:
-    from requests.packages.urllib3.exceptions import NewConnectionError
+    from requests.packages.urllib3.exceptions import ConnectionError
 
     if args.source_lang:
         translation = translator.translate_manual(source_text, SOURCE_LANG,

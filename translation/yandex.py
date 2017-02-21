@@ -244,9 +244,8 @@ class YandexHelper(TranslateHelperABC):
     def translate_auto(self, clipboard_content, target_lang):
         """Translates given content according to app preferences"""
         detected_language = self._detect_language(clipboard_content)
-        translate_direction = detected_language + "-" + target_lang
         if self._translation_available(detected_language, target_lang):
-            response = self._translate(clipboard_content, translate_direction)
+            response = self._translate(clipboard_content, target_lang)
             return response['text'][0]
         return "[Error] Language or translation not available!."
 
