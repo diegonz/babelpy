@@ -4,21 +4,22 @@
 
 import argparse
 import os
-import platform
 import socket
 import sys
 
-from babelpy_utils.settings import ConfigSettings
+from utils.settings import ConfigSettings
 
 APP_ID = "babelPy"
 APP_DESC = "An easy tool for those who would not survive in the tower of Babel"
+
+# TODO - Parse input!
 
 arg_parser = argparse.ArgumentParser(description=APP_DESC, epilog="Enjoy!")
 arg_parser.add_argument('-a', '--api-key', metavar='YourApiKey', nargs='?',
                         help='Your API key for target (or default) backend')
 arg_parser.add_argument('-b', '--backend', metavar='yandex|other', nargs='?',
                         help='Target translate backend (Default: yandex)')
-arg_parser.add_argument('-c', '--config-file', metavar='.babelPy.json',
+arg_parser.add_argument('-c', '--config-file', metavar='~/.babelPy.json',
                         nargs='?', help='Path to config file (load and save)')
 arg_parser.add_argument('-s', '--source-lang', metavar='en|es', nargs='?',
                         help='Give a source language (avoids auto detection)')
@@ -50,7 +51,7 @@ INPUT_TYPE = args.input if args.input else settings.input
 if not args.message:
     try:
         # noinspection PyUnresolvedReferences
-        from babelpy_utils.clipboard import pull_input
+        from utils.clipboard import pull_input
 
         source_text = pull_input(INPUT_TYPE)
     except ImportError as exception:
@@ -92,25 +93,20 @@ APP_PATH = os.path.dirname(os.path.realpath(__file__))
 APP_ICON_PATH = APP_PATH + "/resources/icons/transClipper-outline-64.png"
 
 OUTPUT_TYPE = args.output if args.output else settings.output
-system_type = platform.system()
-if system_type == "Darwin" and OUTPUT_TYPE != "stdout":
-    print("[Error] Notification and dialogs only supported on Win & Linux.")
-    sys.exit(1)
 
 if OUTPUT_TYPE == "notify":
-    # TODO Check OS -> checked before
     try:
-        from notification.notify import NotifyHelper
+        from utils.notify import NotifyHelper
 
-        notifier = NotifyHelper(system_type, APP_ID, APP_ICON_PATH)
+        notifier = NotifyHelper(APP_ID, APP_ICON_PATH)
         notifier.notify(translation, "FakeTitle", TARGET_LANG)
     except ImportError as exception:
-        print("[Error] Module(s) Notify, pyperclip or windows not found!")
+        print("[Error] Module(s) Notify, pyperclip not found!")
         print("[Error] -> {0}") + exception.msg
         sys.exit(1)
 elif OUTPUT_TYPE == "dialog":
     try:
-        from notification.notify import TkDialogNotifier as TkDialog
+        from utils.notify import TkDialogNotifier as TkDialog
 
         TkDialog.show_dialog(APP_ID, source_text, translation, TARGET_LANG)
     except ImportError as exception:
@@ -122,8 +118,7 @@ elif OUTPUT_TYPE == "stdout":
 
 if args.exchange or settings.exchange:
     try:
-        # noinspection PyUnresolvedReferences
-        from babelpy_utils.clipboard import push_clipboard
+        from utils.clipboard import push_clipboard
 
         push_clipboard(translation)
     except ImportError as exception:

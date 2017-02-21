@@ -1,6 +1,6 @@
 import json
 import os
-
+# TODO - Refactor config fields?¿
 
 class ConfigSettings:
     """ConfigSettings - Util class for handling config settings"""

@@ -43,7 +43,7 @@ class TkDialogNotifier(tkinter.Frame):
         self.action_button.pack(side="bottom")
 
     def action_button_callback(self):
-        from babelpy_utils.clipboard import push_clipboard
+        from utils.clipboard import push_clipboard
         push_clipboard(self.text_box_translated.get("1.0", tkinter.END))
         self.action_button["text"] = "Copied to clipboard!"
         time.sleep(3)
@@ -73,20 +73,6 @@ class TkDialogNotifier(tkinter.Frame):
         tk_dialog.mainloop()
 
 
-class NotifyHelper(TranslateNotifier):
-    """NotifyHelper class that helps handling notifications between systems"""
-
-    def __init__(self, system_type, app_id, icon_path):
-        """Constructor for NotifyHelper"""
-        super().__init__(app_id, icon_path)
-        self.system_type = system_type
-
-    def notify(self, message, title, language):
-        LinuxNotifier(self.app_id, self.icon_path).notify(message,
-                                                          title,
-                                                          language)
-
-
 class LinuxNotifier(TranslateNotifier):
     """LinuxNotifier class handles linux notifications"""
 
@@ -100,3 +86,16 @@ class LinuxNotifier(TranslateNotifier):
         notify_title = "<b>Translated to: " + language + "</b>"
         Notify.Notification.new(notify_title, message, self.icon_path).show()
         Notify.uninit()
+
+
+class NotifyHelper(TranslateNotifier):
+    """NotifyHelper class that helps handling notifications between systems"""
+
+    def __init__(self, app_id, icon_path):
+        """Constructor for NotifyHelper"""
+        super().__init__(app_id, icon_path)
+
+    def notify(self, message, title, language):
+        LinuxNotifier(self.app_id, self.icon_path).notify(message,
+                                                          title,
+                                                          language)
