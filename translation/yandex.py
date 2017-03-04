@@ -124,15 +124,7 @@ class YandexTranslator(object):
         return language
 
     def translate(self, text, lang, proxies=None, text_format="plain"):
-        """
-        Translates text to passed language
-        >>> translate = YandexTranslator("API key here")
-        >>> result = translate.translate(lang="ru", text="Hello, world!")
-        >>> result["code"] == 200
-        True
-        >>> result["lang"] == "en-ru"
-        True
-        """
+        """Translates text to given language"""
         data = {
             "text": text,
             "format": text_format,
@@ -220,41 +212,12 @@ class YandexHelper(TranslateHelperABC):
                                        'uk-es', 'uk-fr', 'uk-it', 'uk-pl',
                                        'uk-ro', 'uk-ru', 'uk-sr', 'uk-tr']
 
-    def _detect_language(self, clipboard_content="Hello world!"):
-        """Detects language of given text"""
-        return self.yandex_translate.detect(clipboard_content)
-
-    def _translation_available(self, source_lang, target_lang):
-        translate_direction = source_lang + "-" + target_lang
-        if source_lang == target_lang:
-            raise YandexHelperException(406, translate_direction)
-        if target_lang not in self.available_languages:
-            print("[Error] Language not available!.")
-            raise YandexHelperException(505, target_lang)
-        if source_lang + "-" + target_lang not in self.available_translations:
-            print("[Error] Translation not available!.")
-            raise YandexHelperException(405, translate_direction)
-        return True
-
-    def _translate(self, clipboard_content, translate_direction):
-        """Do the real translation"""
-        return self.yandex_translate.translate(clipboard_content,
-                                               translate_direction)
-
-    def translate_auto(self, clipboard_content, target_lang):
-        """Translates given content according to app preferences"""
-        detected_language = self._detect_language(clipboard_content)
-        if self._translation_available(detected_language, target_lang):
-            response = self._translate(clipboard_content, target_lang)
-            return response['text'][0]
-        return "[Error] Language or translation not available!."
-
-    def translate_manual(self, clipboard_content, source_lang, target_lang):
-        """Translates given content according to given preferences"""
+    def translate(self, target_text, source_lang, target_lang):
         if source_lang == "auto":
-            return self.translate_auto(clipboard_content, target_lang)
-        translate_direction = source_lang + "-" + target_lang
-        if self._translation_available(source_lang, target_lang):
-            response = self._translate(clipboard_content, translate_direction)
-            return response['text'][0]
-        return "[Error] Language or translation not available!."
+            translate_direction = target_lang
+        else:
+            translate_direction = source_lang + "-" + target_lang
+        response = self.yandex_translate.translate(target_text,
+                                                   translate_direction)
+        return response['text'][0], response['lang']
+        pass

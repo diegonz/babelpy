@@ -75,11 +75,9 @@ TARGET_LANG = args.target_lang if args.target_lang else settings.language
 try:
     from requests.packages.urllib3.exceptions import ConnectionError
 
-    if args.source_lang:
-        translation = translator.translate_manual(source_text, SOURCE_LANG,
+    translation, direction = translator.translate(source_text,
+                                                  SOURCE_LANG,
                                                   TARGET_LANG)
-    else:
-        translation = translator.translate_auto(source_text, TARGET_LANG)
 except (ConnectionError, socket.error) as network_exception:
     print("[Error] An connection error occurred while accessing the network.")
     print("[Error] -> {0}".format(network_exception))
@@ -99,7 +97,7 @@ if OUTPUT_TYPE == "notify":
         from utils.notify import NotifyHelper
 
         notifier = NotifyHelper(APP_ID, APP_ICON_PATH)
-        notifier.notify(translation, "FakeTitle", TARGET_LANG)
+        notifier.notify(translation, "Translated " + direction.upper() + ":")
     except ImportError as exception:
         print("[Error] Module(s) Notify, pyperclip not found!")
         print("[Error] -> {0}") + exception.msg

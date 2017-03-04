@@ -18,7 +18,7 @@ class TranslateNotifier(ABC):
         self.icon_path = icon_path
 
     @abstractmethod
-    def notify(self, title, message, language):
+    def notify(self, title, message):
         pass
 
 
@@ -82,9 +82,8 @@ class LinuxNotifier(TranslateNotifier):
         Notify.init(app_id)
         self.icon_path = icon_path
 
-    def notify(self, message, title, language):
-        notify_title = "<b>Translated to: " + language + "</b>"
-        Notify.Notification.new(notify_title, message, self.icon_path).show()
+    def notify(self, message, title):
+        Notify.Notification.new(title, message, self.icon_path).show()
         Notify.uninit()
 
 
@@ -95,7 +94,5 @@ class NotifyHelper(TranslateNotifier):
         """Constructor for NotifyHelper"""
         super().__init__(app_id, icon_path)
 
-    def notify(self, message, title, language):
-        LinuxNotifier(self.app_id, self.icon_path).notify(message,
-                                                          title,
-                                                          language)
+    def notify(self, message, title):
+        LinuxNotifier(self.app_id, self.icon_path).notify(message, title)
